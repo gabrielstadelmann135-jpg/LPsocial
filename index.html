@@ -1270,16 +1270,16 @@ async function loadPosts() {
   const container = document.getElementById('posts-container');
   container.innerHTML='<div class="spinner"></div>';
   try {
-    const q = query(ref(db,'posts'), orderByChild('ts'), limitToLast(30));
-    const snap = await get(q);
+    const snap = await get(ref(db,'posts'));
     container.innerHTML='';
     if (!snap.exists()) { container.innerHTML='<div class="empty-state"><i class="fas fa-feather"></i><p>Aucun post. Sois le premier !</p></div>'; return; }
     const posts=[];
-    snap.forEach(c=>posts.unshift({id:c.key,...c.val()}));
+    snap.forEach(c => posts.push({id:c.key,...c.val()}));
+    posts.sort((a,b) => (b.ts||0) - (a.ts||0));
     for (const p of posts) { const el = await buildPostEl(p); container.appendChild(el); }
   } catch(e) {
     console.error('loadPosts error:', e);
-    container.innerHTML=`<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Erreur : ${e.message||'Vérifiez les règles Firebase'}</p><p style="font-size:0.78rem;margin-top:8px">Dans Firebase Console → Realtime Database → Règles → mets ".read":true, ".write":true</p></div>`;
+    container.innerHTML=`<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Erreur : ${e.message||'Vérifiez les règles Firebase'}</p></div>`;
   }
 }
 
