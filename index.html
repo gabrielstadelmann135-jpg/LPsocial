@@ -1970,7 +1970,37 @@ function linkify(text) {
 </script>
 
 
+<script type="module">
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 
+const db = getDatabase(getApp());
+const snap = await get(ref(db, 'posts'));
+const container = document.getElementById('posts-container');
+container.innerHTML = '';
+const posts = [];
+snap.forEach(c => posts.push({ id: c.key, ...c.val() }));
+posts.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+posts.forEach(p => {
+  const div = document.createElement('div');
+  div.className = 'post';
+  div.innerHTML = `
+    <div class="post-header">
+      <div class="avatar">${(p.author||'?').charAt(0).toUpperCase()}</div>
+      <div class="post-meta">
+        <div class="post-author">${p.author||'Anonyme'} <span style="color:var(--text3)">@${p.pseudo||'user'}</span></div>
+        <div class="post-time">${p.ts ? new Date(p.ts).toLocaleDateString() : ''}</div>
+      </div>
+    </div>
+    <div class="post-content">${p.text||''}</div>
+    <div class="post-actions">
+      <button class="post-action"><i class="far fa-heart"></i> ${p.likes||0}</button>
+      <button class="post-action"><i class="far fa-comment"></i> 0</button>
+    </div>
+  `;
+  container.appendChild(div);
+});
+</script>
 
   
 </body>
