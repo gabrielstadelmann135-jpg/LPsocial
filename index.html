@@ -1287,16 +1287,15 @@ async function buildPostEl(p) {
   const div = document.createElement('div');
   div.className='post'; div.id='post-'+p.id;
   const displayText = currentLang!=='fr' ? await translateText(p.text) : (p.text||'');
+  
   let liked = false;
+  let commCount = typeof p.comments === 'number' ? p.comments : 0;
+  
   try {
     const ls = await get(ref(db,'likes/'+p.id+'/'+currentUser.uid));
     liked = ls.exists();
   } catch(e){}
-  let commCount = 0;
-  try {
-    const cs = await get(ref(db,'comments/'+p.id));
-    if (cs.exists()) commCount = Object.keys(cs.val()).length;
-  } catch(e){}
+
   const userData = {displayName:p.author, photoURL:p.photoURL};
   div.innerHTML = `
     <div class="post-header">
